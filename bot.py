@@ -1,3 +1,4 @@
+from keep_alive import keep_alive
 import discord
 from discord.ext import commands
 import json
@@ -374,8 +375,9 @@ def start_bot():
         print('❌ ERREUR: DISCORD_TOKEN non défini dans les variables d\'environnement!')
         print('📝 Veuillez ajouter votre token Discord dans les Secrets')
         exit(1)
-    
+
     try:
+        keep_alive()
         bot.run(token)
     except Exception as e:
         print(f'❌ Erreur de connexion: {e}')
