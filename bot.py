@@ -420,11 +420,21 @@ def start_bot():
         print('📝 Veuillez ajouter votre token Discord dans les Secrets')
         exit(1)
 
-def run_flask(/health):
-    port = int(os.environ.get("PORT", 8080))
+# --- Mini serveur Flask pour Render ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot Discord en ligne ✅"
+
+@app.route('/health')
+def health():
+    return "OK"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 
-# --- Lancer Flask + Bot Discord ---
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()
     bot.run(os.getenv("DISCORD_TOKEN"))    
