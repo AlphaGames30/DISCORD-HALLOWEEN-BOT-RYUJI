@@ -376,7 +376,16 @@ def start_bot():
         print('❌ ERREUR: DISCORD_TOKEN non défini dans les variables d\'environnement!')
         print('📝 Veuillez ajouter votre token Discord dans les Secrets')
         exit(1)
-    
+
+def run_flask():
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
+
+# --- Lancer Flask + Bot Discord ---
+if __name__ == "__main__":
+    threading.Thread(target=run_flask).start()
+    bot.run(os.getenv("DISCORD_TOKEN"))    
+  
     try:
         bot.run(token)
     except Exception as e:
