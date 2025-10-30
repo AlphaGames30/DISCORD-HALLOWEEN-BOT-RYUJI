@@ -1,0 +1,63 @@
+import discord
+from discord.ext import commands
+import json
+import os
+
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+
+# Dictionnaire des points par utilisateur
+points = {}
+
+# --- Chargement des points au démarrage ---
+def load_points():
+    global points
+    if os.path.exists("points.json"):
+        with open("points.json", "r") as f:
+            points = json.load(f)
+    else:
+        points = {}
+
+# --- Sauvegarde des points ---
+def save_points():
+    with open("points.json", "w") as f:
+        json.dump(points, f, indent=4)
+
+# --- Quand le bot est prêt ---
+@bot.event
+async def on_ready():
+    load_points()
+    print(f"{bot.user} est connecté ! Points chargés : {len(points)} utilisateurs")
+
+# --- Exemple : système de points par réaction ---
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user.bot:
+        return
+
+    emoji = str(reaction.emoji)
+
+    # Valeurs selon l’emoji (tu peux adapter)
+    valeurs = {
+        "🎃": 31,
+        "👻": 4,
+        "🧟": 7,
+        "🍬": 50,
+        "🔪": 12,
+        "💀": 10,
+        "🐺": 17,
+    }
+
+    if emoji in valeurs:
+        user_id = str(user.id)
+        points[user_id] = points.get(user_id, 0) + valeurs[emoji]
+        save_points()  # Sauvegarde après chaque ajout
+        print(f"{user} a gagné {valeurs[emoji]} points (total: {points[user_id]})")
+
+# --- Commande pour voir ses points ---
+@bot.command()
+async def points_moi(ctx):
+    user_id = str(ctx.author.id)
+    user_points = points.get(user_id, 0)
+    await ctx.send(f"🎃 {ctx.author.mention}, tu as **{user_points} points** !")
+
+bot.run("DISCORD_TOKEN")
