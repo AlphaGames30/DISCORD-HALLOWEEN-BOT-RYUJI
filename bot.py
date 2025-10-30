@@ -7,15 +7,12 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import threading
 from flask import Flask
-from keep_alive import keep_alive
 
 intents = discord.Intents.default()
 intents.guilds = True
 intents.guild_messages = True
 intents.message_content = True
 intents.members = True
-
-keep_alive()
 
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
@@ -423,6 +420,21 @@ def start_bot():
         print('❌ ERREUR: DISCORD_TOKEN non défini dans les variables d\'environnement!')
         print('📝 Veuillez ajouter votre token Discord dans les Secrets')
         exit(1)
+
+# --- Mini serveur Flask pour Render ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot Discord en ligne ✅"
+
+@app.route('/health')
+def health():
+    return "OK"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()
