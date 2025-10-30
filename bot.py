@@ -13,6 +13,11 @@ intents.guilds = True
 intents.guild_messages = True
 intents.message_content = True
 intents.members = True
+intents.reactions = True
+intents.messages = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
 
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
