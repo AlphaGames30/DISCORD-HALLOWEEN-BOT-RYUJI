@@ -330,6 +330,48 @@ async def stats_command(ctx):
     
     await ctx.reply(stats_msg)
 
+@bot.command(name='reactionselect')
+@commands.has_permissions(administrator=True)
+async def reactionselect(ctx, emoji: str):
+    valeurs = {
+        "👻": 3,
+        "🧟": 7,
+        "🔪": 12,
+        "🐺": 17,
+        "🎃": 31,
+        "🍬": 50
+    }
+
+    if emoji not in valeurs:
+        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 🧟 🔪 🐺 🎃 🍬")
+        return
+
+    # Envoi du message du mini-jeu
+    message = await ctx.send(
+        f"👀 Réagissez vite avec {emoji} ! Le premier à le faire gagne **{valeurs[emoji]} points !**"
+    )
+    await message.add_reaction(emoji)
+
+    def check(reaction, user):
+        return (
+            str(reaction.emoji) == emoji
+            and reaction.message.id == message.id
+            and not user.bot
+        )
+
+    try:
+        # Attend la première réaction (180 secondes max)
+        reaction, user = await bot.wait_for("reaction_add", timeout=180.0, check=check)
+
+        user_id = str(user.id)
+        points[user_id] = points.get(user_id, 0) + valeurs[emoji]
+        save_points()
+
+        await ctx.send(f"🏆 {user.mention} a été le plus rapide et gagne **{valeurs[emoji]} points !** 🎉")
+    except asyncio.TimeoutError:
+        await ctx.send("⏰ Personne n’a réagi à temps… dommage !")
+
+
 @bot.command(name='help')
 async def help_command(ctx):
     help_msg = """🎃 **BOT HALLOWEEN - AIDE** 🎃
@@ -378,7 +420,7 @@ def start_bot():
         print('📝 Veuillez ajouter votre token Discord dans les Secrets')
         exit(1)
 
-def run_flask():
+def run_flask(/health):
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
 
