@@ -68,16 +68,22 @@ def load_data():
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         gist_data = response.json()
-        content = list(gis
+        content = list(gist_data["files"].values())[0]["content"]
+        data = json.loads(content)
 
-def get_health_boost_status():
-    return health_boost_active
+        if isinstance(data, dict) and "_system" in data:
+            health_boost_active = data["_system"].get("health_boost_active", False)
+            user_data = {k: v for k, v in data.items() if k != "_system"}
+        else:
+            user_data = data
+            health_boost_active = False
 
-def set_health_boost_status(status):
-    global health_boost_active
-    health_boost_active = status
-    save_data()
-    print(f'🏥 Health Boost {"activé" if status else "désactivé"} via interface web')
+        print("✅ Données chargées depuis le Gist GitHub")
+    except Exception as e:
+        print(f"❌ Erreur lors du chargement du Gist : {e}")
+        user_data = {}
+        health_boost_active = False
+
 
 @bot.event
 async def on_ready():
