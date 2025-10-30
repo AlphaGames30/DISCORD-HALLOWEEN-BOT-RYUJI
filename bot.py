@@ -84,7 +84,6 @@ def load_data():
         user_data = {}
         health_boost_active = False
 
-
 @bot.event
 async def on_ready():
     print(f'🎃 Bot connecté en tant que {bot.user}')
