@@ -174,28 +174,33 @@ async def leaderboard_command(ctx):
 
 @bot.command()
 async def backup(ctx):
-    """Force la sauvegarde des données et envoie un résumé en message privé."""
-    load_data()  # Appelle ta fonction de sauvegarde
+    """Force la sauvegarde des données et envoie un résumé en MP."""
+    global user_data, health_boost_active
 
-    # Créons un résumé simple des points et réactions
+    # Vérifie que la fonction save_data existe
+    try:
+        save_data()
+    except NameError:
+        await ctx.send("⚠️ La fonction `save_data()` n'est pas définie. Impossible de sauvegarder.")
+        return
+
+    # Crée un résumé des données utilisateurs
     summary_lines = []
-    for user_id, user_data in data.items():
-        if user_id == "_system":
-            continue  # Ignorer les données système
-        points = user_data.get("points", 0)
-        health = user_data.get("healthBoost", 0)
-        reactions = user_data.get("reactions", {})
+    for user_id, user_info in user_data.items():
+        points = user_info.get("points", 0)
+        health = user_info.get("healthBoost", 0)
+        reactions = user_info.get("reactions", {})
         reactions_str = ", ".join(f"{k}: {v}" for k, v in reactions.items()) if reactions else "aucune"
         summary_lines.append(f"<@{user_id}> - Points: {points}, HealthBoost: {health}, Reactions: {reactions_str}")
 
     summary = "\n".join(summary_lines) if summary_lines else "Aucun utilisateur à afficher."
 
-    # Envoi en MP
+    # Envoi du résumé en MP à l'auteur
     try:
-        await ctx.author.send(f"💾 Sauvegarde effectuée avec succès !\nRésumé des données :\n{summary}")
-        await ctx.send("✅ Je t'ai envoyé un message privé avec le résumé de la sauvegarde.")
+        await ctx.author.send(f"💾 Sauvegarde effectuée !\nRésumé des données :\n{summary}")
+        await ctx.send("✅ Je t'ai envoyé un MP avec le résumé de la sauvegarde.")
     except:
-        await ctx.send("⚠️ Impossible de t'envoyer un message privé. Assure-toi que tes MP sont ouverts.")
+        await ctx.send("⚠️ Impossible de t'envoyer un MP. Assure-toi que tes messages privés sont ouverts.")
 
 @bot.command(name='serverreactions')
 async def serverreactions_command(ctx):
