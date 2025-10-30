@@ -339,11 +339,12 @@ async def on_reaction_add(reaction, user):
         return
     print(f"🔥 Réaction détectée : {reaction.emoji} par {user}")
 
-@bot.command(name='reactionselect')
+@bot.command(name="reactionselect")
 @commands.has_permissions(administrator=True)
 async def reactionselect(ctx, emoji: str):
     valeurs = {
         "👻": 3,
+        "☠️": 7,
         "🧟": 7,
         "🔪": 12,
         "🐺": 17,
@@ -352,14 +353,16 @@ async def reactionselect(ctx, emoji: str):
     }
 
     if emoji not in valeurs:
-        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 🧟 🔪 🐺 🎃 🍬")
+        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 🧟 🔪 🐺 🎃 ☠️ 🍬")
         return
 
-    # Envoi du message du mini-jeu
     message = await ctx.send(
-        f"👀 Réagissez vite avec {emoji} ! Le premier à le faire gagne **{valeurs[emoji]} points !**"
+        f"👀 Réagissez vite avec {emoji} ! "
+        f"Le premier à le faire gagne **{valeurs[emoji]} points !** "
+        f"Vous avez 60 secondes ⏱️"
     )
     await message.add_reaction(emoji)
+    print(f"🕒 En attente d'une réaction {emoji} sur le message ID {message.id}")
 
     def check(reaction, user):
         return (
@@ -369,17 +372,16 @@ async def reactionselect(ctx, emoji: str):
         )
 
     try:
-        # Attend la première réaction (180 secondes max)
-        reaction, user = await bot.wait_for("reaction_add", timeout=180.0, check=check)
-
+        reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
         user_id = str(user.id)
         points[user_id] = points.get(user_id, 0) + valeurs[emoji]
         save_points()
-
+        print(f"✅ Réaction détectée de {user} — {valeurs[emoji]} points ajoutés")
         await ctx.send(f"🏆 {user.mention} a été le plus rapide et gagne **{valeurs[emoji]} points !** 🎉")
-    except asyncio.TimeoutError:
-        await ctx.send("⏰ Personne n’a réagi à temps… dommage !")
 
+    except asyncio.TimeoutError:
+        print("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant")
+        await ctx.send(f"😢 Personne n’a réagi à temps pour {emoji}… Les points sont perdus 💀")
 
 @bot.command(name='help')
 async def help_command(ctx):
