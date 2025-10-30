@@ -84,6 +84,12 @@ def load_data():
         user_data = {}
         health_boost_active = False
 
+def get_user_data(user_id):
+    """Récupère les données d’un utilisateur, ou les initialise si besoin."""
+    if str(user_id) not in user_data:
+        user_data[str(user_id)] = {"points": 0, "healthBoost": 0, "reactions": {}}
+    return user_data[str(user_id)]
+
 @bot.event
 async def on_ready():
     print(f'🎃 Bot connecté en tant que {bot.user}')
@@ -125,21 +131,8 @@ async def on_message(message):
             if selected_emoji['name'] not in user['reactions']:
                 user['reactions'][selected_emoji['name']] = 0
             user['reactions'][selected_emoji['name']] += 1
-           
-def save_data():
-    """Sauvegarde les données dans DATA_FILE (data.json)."""
-    global user_data, health_boost_active
-
-    data_to_save = {"_system": {"health_boost_active": health_boost_active}}
-    data_to_save.update(user_data)
-
-    try:
-        with open(DATA_FILE, "w", encoding="utf-8") as f:
-            json.dump(data_to_save, f, indent=4, ensure_ascii=False)
-        print("💾 Données sauvegardées avec succès dans data.json")
-    except Exception as e:
-        print(f"❌ Erreur lors de la sauvegarde des données : {e}")
-
+            
+            save_data()
             
             boost_msg = ' (Health Boost x1.5 actif!)' if health_boost_active else ''
             await message.reply(
@@ -156,6 +149,21 @@ def save_data():
         print(f'⏳ Prochaine réaction dans {next_reaction_at} messages')
     
     await bot.process_commands(message)
+
+
+def save_data():
+    """Sauvegarde les données dans DATA_FILE (data.json)."""
+    global user_data, health_boost_active
+
+    data_to_save = {"_system": {"health_boost_active": health_boost_active}}
+    data_to_save.update(user_data)
+
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(data_to_save, f, indent=4, ensure_ascii=False)
+        print("💾 Données sauvegardées avec succès dans data.json")
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde des données : {e}")
 
 @bot.command(name='points')
 async def points_command(ctx):
