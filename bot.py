@@ -165,9 +165,6 @@ async def on_message(message):
     
     await bot.process_commands(message)
 
-
-import requests  # Assure-toi que c'est importé en haut de ton fichier
-
 def save_data():
     """Sauvegarde les données localement et sur GitHub Gist."""
     global user_data, health_boost_active
@@ -184,35 +181,31 @@ def save_data():
         print(f"❌ Erreur lors de la sauvegarde locale : {e}")
 
     # 2️⃣ Sauvegarde sur GitHub Gist
-if not GIST_ID or not GITHUB_GIST_TOKEN:
-    print("⚠️ GIST_ID ou GITHUB_GIST_TOKEN manquants")
-    return
+    if not GIST_ID or not GITHUB_GIST_TOKEN:
+        print("⚠️ GIST_ID ou GITHUB_GIST_TOKEN manquants")
+        return  # ✅ OK, à l’intérieur de la fonction
 
-url = f"https://api.github.com/gists/{GIST_ID}"
-headers = {"Authorization": f"token {GITHUB_GIST_TOKEN}"}
-payload = {
-    "files": {
-        "data.json": {"content": json.dumps(data_to_save, indent=4, ensure_ascii=False)}
+    url = f"https://api.github.com/gists/{GIST_ID}"
+    headers = {"Authorization": f"token {GITHUB_GIST_TOKEN}"}
+    payload = {
+        "files": {
+            "data.json": {"content": json.dumps(data_to_save, indent=4, ensure_ascii=False)}
+        }
     }
-}
 
-# <<< Logs de débogage juste avant d’envoyer la requête >>>
-print("🔍 Tentative de sauvegarde sur le Gist...")
-print(f"GIST_ID = {GIST_ID}")
-print(f"TOKEN présent ? {'✅' if GITHUB_GIST_TOKEN else '❌'}")
+    # Exemple d'envoi (requests.patch) avec logs pour debug
+    print("🔍 Tentative de sauvegarde sur le Gist...")
+    print(f"GIST_ID = {GIST_ID}")
+    print(f"TOKEN présent ? {'✅' if GITHUB_GIST_TOKEN else '❌'}")
 
-try:
-    response = requests.patch(url, headers=headers, json=payload)
-    response.raise_for_status()
-
-    # 🔹 Logs pour vérifier ce que GitHub renvoie
-    print(f"🌐 Réponse GitHub : {response.status_code}")
-    print(f"🧾 Contenu : {response.text[:200]}")  # Affiche les 200 premiers caractères
-
-    print("✅ Données sauvegardées sur le Gist GitHub avec succès")
-except Exception as e:
-    print(f"❌ Erreur lors de la sauvegarde sur le Gist GitHub : {e}")
-
+    try:
+        response = requests.patch(url, headers=headers, json=payload)
+        response.raise_for_status()
+        print(f"🌐 Réponse GitHub : {response.status_code}")
+        print(f"🧾 Contenu : {response.text[:200]}")
+        print("✅ Données sauvegardées sur le Gist GitHub avec succès")
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde sur le Gist GitHub : {e}")
 
 @bot.command(name='points')
 async def points_command(ctx):
