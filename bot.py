@@ -353,7 +353,7 @@ async def reactionselect(ctx, emoji: str):
     }
 
     if emoji not in valeurs:
-        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 🧟 🔪 🐺 🎃 ☠️ 🍬")
+        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 🧟 🔪 🐺 🎃 ☠️ 🍬 ☠️")
         return
 
     message = await ctx.send(
@@ -373,15 +373,16 @@ async def reactionselect(ctx, emoji: str):
 
     try:
         reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
-        user_id = str(user.id)
-        points[user_id] = points.get(user_id, 0) + valeurs[emoji]
-        save_points()
+        user_data_entry = get_user_data(user.id)
+        user_data_entry["points"] += valeurs[emoji]
+        save_data()
+
         print(f"✅ Réaction détectée de {user} — {valeurs[emoji]} points ajoutés")
         await ctx.send(f"🏆 {user.mention} a été le plus rapide et gagne **{valeurs[emoji]} points !** 🎉")
 
     except asyncio.TimeoutError:
         print("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant")
-        await ctx.send(f"😢 Personne n’a réagi à temps pour {emoji}… Les points sont perdus 💀")
+        await
 
 @bot.command(name='help')
 async def help_command(ctx):
