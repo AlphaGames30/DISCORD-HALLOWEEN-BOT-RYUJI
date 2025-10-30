@@ -1,4 +1,5 @@
 import discord
+import requests 
 from discord.ext import commands
 import json
 import random
@@ -46,50 +47,28 @@ def select_random_emoji():
     
     return HALLOWEEN_EMOJIS[-1]
 
+import requests
+
+GIST_ID = os.getenv("GIST_ID")
+GITHUB_GIST_TOKEN = os.getenv("GITHUB_GIST_TOKEN")
+
 def load_data():
+    """Charge les données du Gist GitHub"""
     global user_data, health_boost_active
-    try:
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if isinstance(data, dict) and '_system' in data:
-                health_boost_active = data['_system'].get('health_boost_active', False)
-                user_data = {k: v for k, v in data.items() if k != '_system'}
-            else:
-                user_data = data
-                health_boost_active = False
-        print('✅ Données chargées avec succès')
-        print(f'🏥 Health Boost: {"activé" if health_boost_active else "désactivé"}')
-    except FileNotFoundError:
+    if not GIST_ID or not GITHUB_GIST_TOKEN:
+        print("⚠️ Variables d'environnement GIST_ID ou GITHUB_GIST_TOKEN manquantes — impossible de charger depuis GitHub.")
         user_data = {}
         health_boost_active = False
-        print('📝 Nouveau fichier de données créé')
+        return
 
-def save_data():
+    url = f"https://api.github.com/gists/{GIST_ID}"
+    headers = {"Authorization": f"token {GITHUB_GIST_TOKEN}"}
+
     try:
-        data_to_save = {
-            '_system': {
-                'health_boost_active': health_boost_active
-            }
-        }
-        data_to_save.update(user_data)
-        
-        with open(DATA_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data_to_save, f, indent=2, ensure_ascii=False)
-    except Exception as e:
-        print(f'❌ Erreur lors de la sauvegarde: {e}')
-
-def get_user_data(user_id):
-    user_id_str = str(user_id)
-    if user_id_str not in user_data:
-        user_data[user_id_str] = {
-            'points': 0,
-            'healthBoost': 0,
-            'reactions': {},
-            'lastClaim': None
-        }
-    if 'lastClaim' not in user_data[user_id_str]:
-        user_data[user_id_str]['lastClaim'] = None
-    return user_data[user_id_str]
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        gist_data = response.json()
+        content = list(gis
 
 def get_health_boost_status():
     return health_boost_active
