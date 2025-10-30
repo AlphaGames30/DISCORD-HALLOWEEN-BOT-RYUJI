@@ -100,10 +100,17 @@ def load_data():
         health_boost_active = False
 
 def get_user_data(user_id):
-    """Récupère les données d’un utilisateur, ou les initialise si besoin."""
-    if str(user_id) not in user_data:
-        user_data[str(user_id)] = {"points": 0, "healthBoost": 0, "reactions": {}}
-    return user_data[str(user_id)]
+    if user_id not in user_data:
+        user_data[user_id] = {
+            "points": 0,
+            "healthBoost": 0,
+            "reactions": {},
+            "lastClaim": None  # ⚡ Initialisation
+        }
+    return user_data[user_id]
+
+     
+
 
 @bot.event
 async def on_ready():
