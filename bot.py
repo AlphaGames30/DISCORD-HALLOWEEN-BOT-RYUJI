@@ -126,8 +126,6 @@ async def on_message(message):
                 user['reactions'][selected_emoji['name']] = 0
             user['reactions'][selected_emoji['name']] += 1
             
-            save_data()
-            
             def save_data():
     """Sauvegarde les données dans DATA_FILE (data.json)."""
     global user_data, health_boost_active
@@ -142,6 +140,7 @@ async def on_message(message):
     except Exception as e:
         print(f"❌ Erreur lors de la sauvegarde des données : {e}")
 
+        save_data()
             
             boost_msg = ' (Health Boost x1.5 actif!)' if health_boost_active else ''
             await message.reply(
