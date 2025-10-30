@@ -128,6 +128,21 @@ async def on_message(message):
             
             save_data()
             
+            def save_data():
+    """Sauvegarde les données dans DATA_FILE (data.json)."""
+    global user_data, health_boost_active
+
+    data_to_save = {"_system": {"health_boost_active": health_boost_active}}
+    data_to_save.update(user_data)
+
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(data_to_save, f, indent=4, ensure_ascii=False)
+        print("💾 Données sauvegardées avec succès dans data.json")
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde des données : {e}")
+
+            
             boost_msg = ' (Health Boost x1.5 actif!)' if health_boost_active else ''
             await message.reply(
                 f"{selected_emoji['emoji']} Tu as gagné **{points_earned} points** avec {selected_emoji['name']}!{boost_msg} "
