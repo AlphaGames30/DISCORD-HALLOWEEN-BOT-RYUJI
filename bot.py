@@ -175,7 +175,7 @@ async def leaderboard_command(ctx):
 @bot.command()
 async def backup(ctx):
     """Force la sauvegarde des données et envoie un résumé en message privé."""
-    save_data()  # Appelle ta fonction de sauvegarde
+    load_data()  # Appelle ta fonction de sauvegarde
 
     # Créons un résumé simple des points et réactions
     summary_lines = []
