@@ -1,0 +1,79 @@
+{
+  "_system": {
+    "health_boost_active": false
+  },
+  "1222591864683630682": {
+    "points": 18,
+    "healthBoost": 0,
+    "reactions": {
+      "loup": 1,
+      "zombie": 1
+    },
+    "lastClaim": "2025-10-30T08:17:07.808649"
+  },
+  "1217387560788033551": {
+    "points": 141,
+    "healthBoost": 0,
+    "reactions": {
+      "fantôme": 1,
+      "zombie": 1
+    },
+    "lastClaim": "2025-10-28T20:32:42.789402"
+  },
+  "1017471534283104297": {
+    "points": 129,
+    "healthBoost": 0,
+    "reactions": {},
+    "lastClaim": null
+  },
+  "1185612560687444048": {
+    "points": 135,
+    "healthBoost": 0,
+    "reactions": {
+      "crâne": 1,
+      "fantôme": 1
+    },
+    "lastClaim": "2025-10-28T20:40:50.828344"
+  },
+  "1169367174951997510": {
+    "points": 101,
+    "healthBoost": 0,
+    "reactions": {
+      "fantôme": 2
+    },
+    "lastClaim": "2025-10-28T20:41:33.974785"
+  },
+  "1022917725439406203": {
+    "points": 86,
+    "healthBoost": 0,
+    "reactions": {},
+    "lastClaim": null
+  },
+  "1115687421951082617": {
+    "points": 57,
+    "healthBoost": 0,
+    "reactions": {
+      "fantôme": 2,
+      "couteau": 1
+    },
+    "lastClaim": "2025-10-28T20:58:05.431773"
+  },
+  "1293567595772907654": {
+    "points": 24,
+    "healthBoost": 0,
+    "reactions": {},
+    "lastClaim": null
+  },
+  "995403471698284575": {
+    "points": 7,
+    "healthBoost": 0,
+    "reactions": {},
+    "lastClaim": null
+  },
+  "1358054432218157108": {
+    "points": 7,
+    "healthBoost": 0,
+    "reactions": {},
+    "lastClaim": null
+  }
+}
