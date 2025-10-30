@@ -380,9 +380,9 @@ async def reactionselect(ctx, emoji: str):
         print(f"✅ Réaction détectée de {user} — {valeurs[emoji]} points ajoutés")
         await ctx.send(f"🏆 {user.mention} a été le plus rapide et gagne **{valeurs[emoji]} points !** 🎉")
 
-   except asyncio.TimeoutError:
-    print("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant")
-    await ctx.send("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant.")
+    except asyncio.TimeoutError:
+        print("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant")
+        await ctx.send("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant.")
 
 
 @bot.command(name='help')
