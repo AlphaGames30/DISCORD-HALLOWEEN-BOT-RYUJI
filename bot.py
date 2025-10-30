@@ -235,6 +235,14 @@ async def leaderboard_command(ctx):
     
     await ctx.reply(leaderboard)
 
+@bot.command(name="check_requests")
+async def check_requests(ctx):
+    try:
+        import requests
+        await ctx.send(f"✅ requests est installé, version {requests.__version__}")
+    except Exception as e:
+        await ctx.send(f"❌ Erreur avec requests : {e}")
+
 @bot.command()
 async def backup(ctx):
     """Force la sauvegarde des données et envoie un résumé en MP."""
