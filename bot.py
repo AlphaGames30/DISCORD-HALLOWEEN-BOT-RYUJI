@@ -9,6 +9,8 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import threading
 from flask import Flask
+import signal
+import sys
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -35,6 +37,19 @@ message_count = 1
 next_reaction_at = random.randint(15, 30)
 user_data = {}
 health_boost_active = False
+
+def graceful_shutdown(*args):
+    """Sauvegarde automatique avant arrêt."""
+    print("🛑 Signal d'arrêt reçu — sauvegarde des données...")
+    try:
+        save_data()
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde à l’arrêt : {e}")
+    sys.exit(0)
+
+# Intercepte les signaux d’arrêt envoyés par Render
+signal.signal(signal.SIGTERM, graceful_shutdown)
+signal.signal(signal.SIGINT, graceful_shutdown)
 
 def select_random_emoji():
     random_value = random.random()
@@ -151,19 +166,53 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
+import requests  # Assure-toi que c'est importé en haut de ton fichier
+
 def save_data():
-    """Sauvegarde les données dans DATA_FILE (data.json)."""
+    """Sauvegarde les données localement et sur GitHub Gist."""
     global user_data, health_boost_active
 
     data_to_save = {"_system": {"health_boost_active": health_boost_active}}
     data_to_save.update(user_data)
 
+    # 1️⃣ Sauvegarde locale
     try:
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(data_to_save, f, indent=4, ensure_ascii=False)
-        print("💾 Données sauvegardées avec succès dans data.json")
+        print("💾 Données sauvegardées localement dans data.json")
     except Exception as e:
-        print(f"❌ Erreur lors de la sauvegarde des données : {e}")
+        print(f"❌ Erreur lors de la sauvegarde locale : {e}")
+
+    # 2️⃣ Sauvegarde sur GitHub Gist
+if not GIST_ID or not GITHUB_GIST_TOKEN:
+    print("⚠️ GIST_ID ou GITHUB_GIST_TOKEN manquants")
+    return
+
+url = f"https://api.github.com/gists/{GIST_ID}"
+headers = {"Authorization": f"token {GITHUB_GIST_TOKEN}"}
+payload = {
+    "files": {
+        "data.json": {"content": json.dumps(data_to_save, indent=4, ensure_ascii=False)}
+    }
+}
+
+# <<< Logs de débogage juste avant d’envoyer la requête >>>
+print("🔍 Tentative de sauvegarde sur le Gist...")
+print(f"GIST_ID = {GIST_ID}")
+print(f"TOKEN présent ? {'✅' if GITHUB_GIST_TOKEN else '❌'}")
+
+try:
+    response = requests.patch(url, headers=headers, json=payload)
+    response.raise_for_status()
+
+    # 🔹 Logs pour vérifier ce que GitHub renvoie
+    print(f"🌐 Réponse GitHub : {response.status_code}")
+    print(f"🧾 Contenu : {response.text[:200]}")  # Affiche les 200 premiers caractères
+
+    print("✅ Données sauvegardées sur le Gist GitHub avec succès")
+except Exception as e:
+    print(f"❌ Erreur lors de la sauvegarde sur le Gist GitHub : {e}")
+
 
 @bot.command(name='points')
 async def points_command(ctx):
