@@ -3,21 +3,18 @@ from discord.ext import commands
 import json
 import random
 import os
+import asyncio
 from pathlib import Path
 from datetime import datetime, timedelta
 import threading
 from flask import Flask
 
 intents = discord.Intents.default()
-intents.guilds = True
-intents.guild_messages = True
-intents.message_content = True
-intents.members = True
-intents.reactions = True
 intents.messages = True
-
-bot = commands.Bot(command_prefix="!", intents=intents)
-
+intents.reactions = True
+intents.guilds = True
+intents.members = True
+intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
@@ -335,6 +332,12 @@ async def stats_command(ctx):
         stats_msg += 'Aucune réaction pour le moment!\n'
     
     await ctx.reply(stats_msg)
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user.bot:
+        return
+    print(f"🔥 Réaction détectée : {reaction.emoji} par {user}")
 
 @bot.command(name='reactionselect')
 @commands.has_permissions(administrator=True)
