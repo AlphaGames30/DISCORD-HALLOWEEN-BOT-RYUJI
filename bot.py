@@ -287,8 +287,6 @@ async def claim_command(ctx):
     
     user['lastClaim'] = now.isoformat()
     
-    save_data()
-    
     boost_msg = ' (Health Boost x1.5 actif!)' if health_boost_active else ''
     await ctx.reply(
         f"🎁 {selected_emoji['emoji']} Claim réussi! Tu as gagné **{points_earned} points** avec {selected_emoji['name']}!{boost_msg}\n"
