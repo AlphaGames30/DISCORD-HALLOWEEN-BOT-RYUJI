@@ -172,6 +172,31 @@ async def leaderboard_command(ctx):
     
     await ctx.reply(leaderboard)
 
+@bot.command()
+async def backup(ctx):
+    """Force la sauvegarde des données et envoie un résumé en message privé."""
+    save_data()  # Appelle ta fonction de sauvegarde
+
+    # Créons un résumé simple des points et réactions
+    summary_lines = []
+    for user_id, user_data in data.items():
+        if user_id == "_system":
+            continue  # Ignorer les données système
+        points = user_data.get("points", 0)
+        health = user_data.get("healthBoost", 0)
+        reactions = user_data.get("reactions", {})
+        reactions_str = ", ".join(f"{k}: {v}" for k, v in reactions.items()) if reactions else "aucune"
+        summary_lines.append(f"<@{user_id}> - Points: {points}, HealthBoost: {health}, Reactions: {reactions_str}")
+
+    summary = "\n".join(summary_lines) if summary_lines else "Aucun utilisateur à afficher."
+
+    # Envoi en MP
+    try:
+        await ctx.author.send(f"💾 Sauvegarde effectuée avec succès !\nRésumé des données :\n{summary}")
+        await ctx.send("✅ Je t'ai envoyé un message privé avec le résumé de la sauvegarde.")
+    except:
+        await ctx.send("⚠️ Impossible de t'envoyer un message privé. Assure-toi que tes MP sont ouverts.")
+
 @bot.command(name='serverreactions')
 async def serverreactions_command(ctx):
     if not user_data:
