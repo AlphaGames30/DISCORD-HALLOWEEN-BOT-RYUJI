@@ -243,6 +243,30 @@ async def check_requests(ctx):
     except Exception as e:
         await ctx.send(f"❌ Erreur avec requests : {e}")
 
+@bot.command(name="check_gist")
+async def check_gist(ctx):
+    import requests
+    if not GIST_ID or not GITHUB_GIST_TOKEN:
+        await ctx.send("⚠️ GIST_ID ou GITHUB_GIST_TOKEN manquants")
+        return
+
+    url = f"https://api.github.com/gists/{GIST_ID}"
+    headers = {"Authorization": f"token {GITHUB_GIST_TOKEN}"}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        await ctx.send(f"✅ Connexion au Gist OK, statut : {response.status_code}")
+    except Exception as e:
+        await ctx.send(f"❌ Erreur connexion Gist : {e}")
+
+@bot.command(name="test_save")
+async def test_save(ctx):
+    try:
+        save_data()
+        await ctx.send("💾 save_data() exécuté. Vérifie le Gist.")
+    except Exception as e:
+        await ctx.send(f"❌ Erreur save_data() : {e}")
+
 @bot.command()
 async def backup(ctx):
     """Force la sauvegarde des données et envoie un résumé en MP."""
