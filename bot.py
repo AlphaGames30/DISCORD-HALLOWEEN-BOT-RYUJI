@@ -456,7 +456,6 @@ async def on_reaction_add(reaction, user):
 @bot.command(name="reactionselect")
 @commands.has_permissions(administrator=True)
 async def reactionselect(ctx, emoji: str):
-    """Commande admin pour lancer un mini-jeu de réaction rapide."""
     valeurs = {
         "👻": 3,
         "☠️": 7,
@@ -467,33 +466,28 @@ async def reactionselect(ctx, emoji: str):
         "🍬": 50
     }
 
-    # 🔍 Vérification de l'emoji
     if emoji not in valeurs:
-        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 ☠️ 🧟 🔪 🐺 🎃 🍬")
+        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 🧟 🔪 🐺 🎃 ☠️ 🍬 ☠️")
         return
 
-    # 🕐 Petite pause pour éviter un enchaînement trop rapide de requêtes
-    await asyncio.sleep(0.5)
-
     try:
-        # Envoi du message principal
+        # Envoi du message initial
         message = await ctx.send(
             f"👀 Réagissez vite avec {emoji} ! "
             f"Le premier à le faire gagne **{valeurs[emoji]} points !** "
-            f"Vous avez 2minute secondes ⏱️"
+            f"Vous avez 2 minutes⏱️"
         )
 
-        # Pause de sécurité avant d’ajouter la réaction
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.5)  # Petit délai pour éviter le rate-limit
         await message.add_reaction(emoji)
         print(f"🕒 En attente d'une réaction {emoji} sur le message ID {message.id}")
 
-       except Exception as e:
+    except Exception as e:
         print(f"❌ Erreur lors de l’envoi du message ou de l’ajout de la réaction : {e}")
         await ctx.send("⚠️ Une erreur est survenue lors du lancement du jeu.")
         return
 
-    # ✅ Fonction de vérification pour détecter la première bonne réaction
+    # Vérifie la réaction du premier joueur
     def check(reaction, user):
         return (
             str(reaction.emoji) == emoji
@@ -502,14 +496,14 @@ async def reactionselect(ctx, emoji: str):
         )
 
     try:
-        # ⏳ Attend la première réaction valide pendant 90 secondes
+        # Attend la première réaction valide pendant 90 secondes
         reaction, user = await bot.wait_for("reaction_add", timeout=120.0, check=check)
 
-        # ➕ Mise à jour des points du gagnant
+        # Ajoute les points au joueur
         user_data_entry = get_user_data(user.id)
         user_data_entry["points"] += valeurs[emoji]
 
-        save_data()  # Sauvegarde locale et sur Gist
+        save_data()  # Sauvegarde locale et sur le Gist GitHub
 
         print(f"✅ Réaction détectée de {user} — {valeurs[emoji]} points ajoutés")
         await ctx.send(f"🏆 {user.mention} a été le plus rapide et gagne **{valeurs[emoji]} points !** 🎉")
