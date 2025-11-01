@@ -455,6 +455,7 @@ async def on_reaction_add(reaction, user):
 
 @bot.command(name="reactionselect")
 @commands.has_permissions(administrator=True)
+@commands.cooldown(1, 5, commands.BucketType.user)  # 1 utilisation / 5 secondes par admin
 async def reactionselect(ctx, emoji: str):
     valeurs = {
         "👻": 3,
