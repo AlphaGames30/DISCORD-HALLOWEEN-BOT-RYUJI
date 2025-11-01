@@ -456,6 +456,7 @@ async def on_reaction_add(reaction, user):
 @bot.command(name="reactionselect")
 @commands.has_permissions(administrator=True)
 async def reactionselect(ctx, emoji: str):
+    """Commande admin pour lancer un mini-jeu de réaction rapide."""
     valeurs = {
         "👻": 3,
         "☠️": 7,
@@ -466,18 +467,33 @@ async def reactionselect(ctx, emoji: str):
         "🍬": 50
     }
 
+    # 🔍 Vérification de l'emoji
     if emoji not in valeurs:
-        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 🧟 🔪 🐺 🎃 ☠️ 🍬 ☠️")
+        await ctx.send("❌ Réaction invalide. Choisis parmi 👻 ☠️ 🧟 🔪 🐺 🎃 🍬")
         return
 
-    message = await ctx.send(
-        f"👀 Réagissez vite avec {emoji} ! "
-        f"Le premier à le faire gagne **{valeurs[emoji]} points !** "
-        f"Vous avez 60 secondes ⏱️"
-    )
-    await message.add_reaction(emoji)
-    print(f"🕒 En attente d'une réaction {emoji} sur le message ID {message.id}")
+    # 🕐 Petite pause pour éviter un enchaînement trop rapide de requêtes
+    await asyncio.sleep(0.5)
 
+    try:
+        # Envoi du message principal
+        message = await ctx.send(
+            f"👀 Réagissez vite avec {emoji} ! "
+            f"Le premier à le faire gagne **{valeurs[emoji]} points !** "
+            f"Vous avez 2minute secondes ⏱️"
+        )
+
+        # Pause de sécurité avant d’ajouter la réaction
+        await asyncio.sleep(0.5)
+        await message.add_reaction(emoji)
+        print(f"🕒 En attente d'une réaction {emoji} sur le message ID {message.id}")
+
+       except Exception as e:
+        print(f"❌ Erreur lors de l’envoi du message ou de l’ajout de la réaction : {e}")
+        await ctx.send("⚠️ Une erreur est survenue lors du lancement du jeu.")
+        return
+
+    # ✅ Fonction de vérification pour détecter la première bonne réaction
     def check(reaction, user):
         return (
             str(reaction.emoji) == emoji
@@ -486,18 +502,24 @@ async def reactionselect(ctx, emoji: str):
         )
 
     try:
-        reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
+        # ⏳ Attend la première réaction valide pendant 90 secondes
+        reaction, user = await bot.wait_for("reaction_add", timeout=120.0, check=check)
+
+        # ➕ Mise à jour des points du gagnant
         user_data_entry = get_user_data(user.id)
         user_data_entry["points"] += valeurs[emoji]
-        save_data()
+
+        save_data()  # Sauvegarde locale et sur Gist
 
         print(f"✅ Réaction détectée de {user} — {valeurs[emoji]} points ajoutés")
         await ctx.send(f"🏆 {user.mention} a été le plus rapide et gagne **{valeurs[emoji]} points !** 🎉")
 
     except asyncio.TimeoutError:
-        print("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant")
+        print("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant.")
         await ctx.send("⏰ Personne n’a réagi à temps — giveaway terminé sans gagnant.")
-
+    except Exception as e:
+        print(f"⚠️ Erreur inattendue dans reactionselect : {e}")
+        await ctx.send("❌ Une erreur inattendue est survenue.")
 
 @bot.command(name='help')
 async def help_command(ctx):
